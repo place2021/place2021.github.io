@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+
+		<title>PLACE</title>
+		 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<style>
+		  @import url("https://use.typekit.net/tlv7eui.css");
+
+			html, body {
+				margin: 0;
+				height: 100%;
+				overflow: hidden;
+				cursor: crosshair;
+			}
+			#c {
+				width: 100%;
+				height: 100%;
+				display: block;
+			}
+
+			h1, .what, .when-where, .who, .description {
+				position: fixed;
+				z-index: 1;
+				color: #ffffff;
+			}
+			span.a {
+				margin: 0 -7px 0 9px;
+			}
+
+			h1 {
+				font-family: archivo-black, sans-serif;
+				font-weight: 400;
+				font-style: normal;
+				font-size: 10em;
+				width: 100%;
+				text-align: center;
+				margin: 0;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			p {
+				margin: 0;
+			}
+
+			.what, .when-where, .who, .description {
+				font-family: source-code-pro,monospace;
+				font-weight: 300;
+				font-style: normal;
+				font-size: 0.7em;
+			}
+			.what {
+				top: 50px;
+				left: 50px;
+			}
+			.when-where {
+				bottom: 50px;
+				left: 50px;
+			}
+			.who {
+				bottom: 50px;
+				right: 50px;
+			}
+			.who a {
+				text-decoration: none;
+				color: #ffffff;
+				display: block;
+				position: relative;
+			}
+			#who-photo {
+				position: absolute;
+				width: 100px;
+				z-index: 1;
+			}
+			.description {
+				bottom: 50px;
+				width: 280px;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+
+			.dash {
+				position: relative;
+			}
+			.dash::after {
+				content: '';
+				position: absolute;
+				height: 1px;
+				width: 35px;
+				background-color: #ffffff;
+				right: 0;
+				top: 8px;
+			}
+
+			.arrow {
+				height: 1px;
+				width: 10px;
+				position: relative;
+				display: inline-block;
+				background-color: #ffffff;
+				transition: transform 0.2s ease;
+				vertical-align: middle;
+				margin-top: -2px;
+			}
+
+			.who a:hover .arrow {
+				transform: rotate(-45deg);
+			}
+
+			.arrow::after, .arrow::before {
+				content: "";
+				height: 1px;
+				width: 7px;
+				position: absolute;
+				background-color: inherit;
+			}
+			.arrow::before {
+				top: -2px;
+				left: 4px;
+				transform: rotate(45deg);
+			}
+			.arrow::after {
+				top: 2px;
+				left: 4px;
+				transform: rotate(-45deg);
+			}
+
+
+			@media only screen and (max-width: 768px) {
+				h1 {
+					font-size: 7em;
+				}
+				span.a {
+					margin: 0 -4px 0 6px;
+				}
+				.what, .when-where, .who, .description {
+					font-size: 0.65em;
+					margin: 0 0 -1px 0;
+				}
+				.what {
+					top: 20px;
+					left: 20px;
+				}
+				.when-where {
+					bottom: 20px;
+					left: 20px;
+				}
+				.who {
+					bottom: 20px;
+					right: 20px;
+				}
+				#who-photo {
+					display: none;
+				}
+				.description {
+					display: none;
+				}
+			}
+			@media only screen and (max-width: 460px) {
+				h1 {
+					font-size: 5em;
+					transform: none;
+					top: 25%;
+				}
+				span.a {
+					margin: 0 -2px 0 4px;
+				}
+				.when-where {
+					bottom: 120px;
+					left: 20px;
+				}
+				.who {
+					bottom: 20px;
+					left: 20px;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<script type="module">
+			import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+
+			// set variables
+			// https://www.chromawall.com/blog//chroma-key-blue
+			const blue = 0x0033cc; // "websafe" color
+			// 0x2B51A3 cholong's IA color
+			// 0x0047bb hex color
+
+			let container;
+			let rectangles = new Array();
+			let camera, scene, renderer;
+			let mouseX = 0, mouseY = 0;
+
+			let windowHalfX = window.innerWidth / 2;
+			let windowHalfY = window.innerHeight / 2;
+
+			init();
+			animate();
+
+			function init() {
+				container = document.querySelector('#container');
+
+			  const fov = 20;
+			  const aspect = window.innerWidth / window.innerHeight;  // the canvas default
+			  const near = 1;
+			  const far = 10000;
+			  camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			  camera.position.z = 1800;
+
+			  scene = new THREE.Scene();
+			  scene.background = new THREE.Color( blue );
+
+				const canvas = document.createElement( 'canvas' );
+				canvas.width = 128;
+				canvas.height = 128;
+
+				// LIGHT
+			  {
+			    const color = 0xFFFFFF;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(-2, 2, -2);
+			    scene.add(light);
+			  }
+				{
+			    const color = 0xFFFFFF;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(-2, 2, 2);
+			    scene.add(light);
+			  }
+				{
+			    const color = blue;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(2, -2, 2);
+			    scene.add(light);
+			  }
+				{
+			    const color = blue;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(2, 2, 2);
+			    scene.add(light);
+			  }
+
+			  function addSolidGeometry(x, y) {
+					const material = new THREE.MeshPhongMaterial({
+						side: THREE.DoubleSide,
+						specular: 0xffffff,
+						shininess: 1,
+						color: blue,
+					});
+
+					const radiusTop = 110;
+			 	  const radiusBottom = 110;
+			 	  const height = 110;
+			 	  const radialSegments = 4;
+			 	  const heightSegments = 1;
+			 	  const openEnded = true;
+			 	  const thetaStart = Math.PI * 0.00;
+			 	  const thetaLength = Math.PI * 2.00;
+
+			 	  const geometry = new THREE.CylinderGeometry(
+			 		  radiusTop, radiusBottom, height,
+			 		  radialSegments, heightSegments,
+			 	 	  openEnded, thetaStart, thetaLength
+			 	  )
+			    const shape = new THREE.Mesh(geometry, material);
+
+					shape.position.x = x;
+				 	shape.position.y = y;
+
+					scene.add(shape);
+					return shape;
+			  }
+
+				const space = 240;
+				rectangles = [
+					addSolidGeometry(0, 0),
+					addSolidGeometry(-space, -space),
+					addSolidGeometry(space, space),
+					addSolidGeometry(space, -space),
+					addSolidGeometry(-space, space),
+					addSolidGeometry(-space*2, 0),
+					addSolidGeometry(space*2, 0),
+					addSolidGeometry(space*3, space),
+					addSolidGeometry(-space*3, space),
+					addSolidGeometry(-space*3, -space),
+					addSolidGeometry(space*3, -space),
+					addSolidGeometry(-space*2, space*2),
+					addSolidGeometry(space*2, space*2),
+					addSolidGeometry(-space*2, -space*2),
+					addSolidGeometry(space*2, -space*2),
+				];
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+								renderer.setPixelRatio( window.devicePixelRatio );
+								renderer.setSize( window.innerWidth, window.innerHeight );
+								container.appendChild( renderer.domElement );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove );
+
+				window.addEventListener( 'resize', onWindowResize );
+			}
+
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function onDocumentMouseMove( event ) {
+				mouseX = ( event.clientX - windowHalfX );
+				mouseY = ( event.clientY - windowHalfY );
+			}
+
+			function animate() {
+				requestAnimationFrame( animate );
+				render();
+			}
+
+			function render() {
+				const time = Date.now() * 0.001;
+
+				rectangles.forEach((obj, ndx) => {
+					const speed = .1 + ndx * .05;
+					const rot = time * speed;
+
+					obj.rotation.x = rot;
+					obj.rotation.y = rot;
+					obj.rotation.z = rot;
+				});
+
+				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
+				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
+
+				camera.lookAt( scene.position );
+
+				renderer.render( scene, camera );
+			}
+
+		</script>
+
+		<div id="container">
+
+			<h1>PL<span class="a">A</span>CE</h1>
+			<!-- <a href="https://threejs.org/examples/#webgl_geometry_colors">ex</a> -->
+			<p class="description" id="changing-desc"></p>
+
+			<div class="what">
+				<p>University of Minnesota</p>
+				<p>Graphic Design</p>
+				<p>Graduate Thesis Exhibition</p>
+				<p>2021</p>
+			</div>
+
+			<div class="when-where">
+				<p class="dash">04. 23 Fri</p>
+				<p>05. 15 Sun</p>
+				<br>
+				<p>HGA Gallery</p>
+				<p>Ralph Rapson Hall</p>
+			</div>
+
+			<div class="who" id="who-group">
+				<p id="sabrill">Sabrill Holcomb (MFA)</p>
+				<a id="cholong" href="#">Cholong Kim (MFA) <span class="arrow"></span></a>
+				<a id="yunha" href="#">Yun Ha Seo (MFA) <span class="arrow"></span></a>
+				<a id="jen" href="#">Jennifer Oksnevad (MA) <span class="arrow"></span></a>
+				<a id="sree" href="#">Sreekishen Nair (Ph.D) <span class="arrow"></span></a>
+			</div>
+
+			<img id="who-photo" src="" alt="">
+
+		</div>
+
+		<script type="text/javascript">
+
+			// code from https://fdossena.com/?p=html5cool/anitxt/i.frag
+			function AnimatedText(target,texts,changeInterval,updateInterval,onTextChanged){
+				var currentText=parseInt(Math.random()*texts.length);
+				var areaText=texts[0];
+				this.t1=setInterval(function(){
+					var c=parseInt(Math.random()*Math.max(texts[currentText].length,areaText.length));
+					var s=texts[currentText][c];
+					if(typeof s == 'undefined') s=" ";
+					while(areaText.length<c) areaText+=" ";
+					var newText=(areaText.slice(0,c)+s+areaText.slice(c+1)).trim();
+					var diff=!(newText==areaText);
+					areaText=newText;
+					if(onTextChanged&&diff) onTextChanged();
+					target.innerHTML=areaText.length==0?"&nbsp;":areaText;
+				}.bind(this),updateInterval?updateInterval:50);
+				this.t2=setInterval(function(){
+					currentText=parseInt(Math.random()*texts.length);
+				}.bind(this),changeInterval?changeInterval:4000);
+			}
+
+			AnimatedText.prototype={
+				constructor:AnimatedText,
+				stop:function(){clearInterval(this.t1);clearInterval(this.t2);}
+			};
+
+			var bio_array = ["PLACE, as both a noun and a verb, explores the ambiguity of placeness, location, and identity of the ideas presented through the works of these graphic designers in society and culture."];
+			var animateText = new AnimatedText(document.getElementById("changing-desc"), bio_array, 1, 0.5);
+			const photo = document.getElementById("who-photo");
+
+			document.getElementById("sabrill").addEventListener("mouseenter", function( event ) {
+				bio_array.pop();
+				bio_array.push("sabrill's bio");
+				photo.src = "img/sabrill.jpg";
+			});
+
+			document.getElementById("cholong").addEventListener("mouseenter", function( event ) {
+				bio_array.pop();
+				bio_array.push("cholong's bio");
+				photo.src = "img/cholong.jpg";
+			});
+
+			document.getElementById("yunha").addEventListener("mouseenter", function( event ) {
+				bio_array.pop();
+				bio_array.push("Yunha is a designer and developer interested in the materiality and culture of the internet and the intersection between art and technology.");
+				photo.src = "img/yunha.jpg";
+			});
+
+			document.getElementById("jen").addEventListener("mouseenter", function( event ) {
+				bio_array.pop();
+				bio_array.push("jen's bio");
+				photo.src = "img/jen.jpg";
+			});
+
+			document.getElementById("sree").addEventListener("mouseenter", function( event ) {
+				bio_array.pop();
+				bio_array.push("sree's bio");
+				photo.src = "img/sree.jpg";
+			});
+
+			document.getElementById("who-group").addEventListener("mouseleave", function( event ) {
+				bio_array.pop();
+				bio_array.push("PLACE, as both a noun and a verb, explores the ambiguity of placeness, location, and identity of the ideas presented through the works of these graphic designers in society and culture.");
+				photo.src = "";
+			});
+
+			document.addEventListener('mousemove', e => {
+				photo.style.left = e.x - 120 + "px";
+				photo.style.top = e.y - 70 + "px";
+
+			});
+
+		</script>
+
+	</body>
+</html>

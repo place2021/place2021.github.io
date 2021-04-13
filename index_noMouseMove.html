@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+
+		<title>My first three.js app</title>
+
+		<style>
+		  @import url("https://use.typekit.net/tlv7eui.css");
+
+			html, body {
+				margin: 0;
+				height: 100%;
+			}
+			#c {
+				width: 100%;
+				height: 100%;
+				display: block;
+			}
+
+			h1, .what, .when-where, .who {
+				position: fixed;
+				z-index: 1;
+				color: #ffffff;
+			}
+			span.a {
+				margin: 0 -7px 0 9px;
+			}
+
+			h1 {
+				font-family: archivo-black, sans-serif;
+				font-weight: 400;
+				font-style: normal;
+				font-size: 10em;
+				width: 100%;
+				text-align: center;
+				margin: 0;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			p {
+				margin: 0;
+			}
+
+			.what, .when-where, .who {
+				font-family: source-code-pro,monospace;
+				font-weight: 300;
+				font-style: normal;
+				font-size: 0.7em;
+			}
+			.what {
+				top: 50px;
+				left: 50px;
+			}
+			.when-where {
+				bottom: 50px;
+				left: 50px;
+			}
+			.who {
+				bottom: 50px;
+				right: 50px;
+			}
+
+			.dash {
+				position: relative;
+			}
+			.dash::after {
+				content: '';
+				position: absolute;
+				height: 1px;
+				width: 35px;
+				background-color: #ffffff;
+				right: 0;
+				top: 8px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script type="module">
+			// set variables
+			const blue = 0x2B51A3;
+			const lightblue = 0x6E7ABB;
+
+			let mouseX = 0, mouseY = 0;
+
+			import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+
+			function main() {
+			  const canvas = document.querySelector('#c');
+			  const renderer = new THREE.WebGLRenderer({canvas});
+
+			  const fov = 40;
+			  const aspect = 2;  // the canvas default
+			  const near = 1;
+			  const far = 1000;
+			  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			  camera.position.z = 120;
+
+			  const scene = new THREE.Scene();
+			  scene.background = new THREE.Color( blue );
+
+				// LIGHT
+			  {
+			    const color = 0xFFFFFF;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(-2, 2, 2);
+			    scene.add(light);
+			  }
+				{
+			    const color = blue;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(2, -2, 2);
+			    scene.add(light);
+			  }
+				{
+			    const color = lightblue;
+			    const intensity = 1;
+			    const light = new THREE.DirectionalLight(color, intensity);
+			    light.position.set(0, 0, 2);
+			    scene.add(light);
+			  }
+
+			  function addSolidGeometry(x, y, color, geometry) {
+					// const material = new THREE.MeshPhongMaterial({
+			    //   side: THREE.DoubleSide,
+					// 	color: color,
+			    // });
+					const material = new THREE.MeshPhongMaterial({
+						side: THREE.DoubleSide,
+						specular: 0xffffff,
+						shininess: 1,
+						color: blue,
+					});
+
+			    const shape = new THREE.Mesh(geometry, material);
+
+					shape.position.x = x;
+				 	shape.position.y = y;
+
+					// shape.rotation.x = 90;
+					// shape.rotation.y = 50;
+					// shape.rotation.z = 20;
+
+					scene.add(shape);
+					return shape;
+			  }
+
+		    const radiusTop = 15;
+		    const radiusBottom = 15;
+		    const height = 15;
+		    const radialSegments = 4;
+				const heightSegments = 1;
+				const openEnded = true;
+				const thetaStart = Math.PI * 0.00;
+				const thetaLength = Math.PI * 2.00;
+
+				const shape = new THREE.CylinderGeometry(
+					radiusTop, radiusBottom, height,
+					radialSegments, heightSegments,
+					openEnded, thetaStart, thetaLength
+				)
+
+				const space = 30;
+				const rectangles = [
+					addSolidGeometry(0, 0, blue, shape),
+					addSolidGeometry(-space, -space, blue, shape),
+					addSolidGeometry(space, space, blue, shape),
+					addSolidGeometry(space, -space, blue, shape),
+					addSolidGeometry(-space, space, blue, shape),
+					addSolidGeometry(-space*2, 0, blue, shape),
+					addSolidGeometry(space*2, 0, blue, shape),
+				];
+
+			  function resizeRendererToDisplaySize(renderer) {
+			    const canvas = renderer.domElement;
+			    const width = canvas.clientWidth;
+			    const height = canvas.clientHeight;
+			    const needResize = canvas.width !== width || canvas.height !== height;
+			    if (needResize) {
+			      renderer.setSize(width, height, false);
+			    }
+			    return needResize;
+			  }
+
+			  function render(time) {
+			    time *= 0.001;
+
+			    if (resizeRendererToDisplaySize(renderer)) {
+			      const canvas = renderer.domElement;
+			      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+			      camera.updateProjectionMatrix();
+			    }
+
+			    rectangles.forEach((obj, ndx) => {
+			      const speed = .1 + ndx * .05;
+			      const rot = time * speed;
+			      obj.rotation.x = rot;
+			      obj.rotation.y = rot;
+						obj.rotation.z = rot;
+			    });
+
+			    renderer.render(scene, camera);
+
+			    requestAnimationFrame(render);
+			  }
+
+			  requestAnimationFrame(render);
+			}
+
+			main();
+
+		</script>
+
+		<h1>PL<span class="a">A</span>CE</h1>
+
+		<div class="what">
+			<p>University of Minnesota</p>
+			<p>Graphic Design</p>
+			<p>Graduate Thesis Exhibition</p>
+			<p>2021</p>
+		</div>
+
+		<div class="when-where">
+			<p class="dash">04. 23 Fri</p>
+			<p>05. 15 Sun</p>
+			<br>
+			<p>HGA Gallery</p>
+			<p>Ralph Rapson Hall</p>
+		</div>
+
+		<div class="who">
+			<p>Sabrill Holcomb (MFA)</p>
+			<p>Cholong Kim (MFA)</p>
+			<p>Yun Ha Seo (MFA)</p>
+			<p>Jennifer Oksnevad (MA)</p>
+			<p>Sreekishen Nair (Ph.D)</p>
+		</div>
+
+		<canvas id="c"></canvas>
+	</body>
+</html>
