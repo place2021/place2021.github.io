@@ -72,7 +72,7 @@
 			}
 			#who-photo {
 				position: absolute;
-				width: 100px;
+				width: 150px;
 				z-index: 1;
 			}
 			.description {
@@ -364,8 +364,8 @@
 			</div>
 
 			<div class="when-where">
-				<p class="dash">04. 23 Fri</p>
-				<p>05. 15 Sun</p>
+				<p class="dash">05. 10 Mon</p>
+				<p>06. 04 Fri</p>
 				<br>
 				<p>HGA Gallery</p>
 				<p>Ralph Rapson Hall</p>
@@ -373,10 +373,10 @@
 
 			<div class="who" id="who-group">
 				<p id="sabrill">Sabrill Holcomb (MFA)</p>
-				<a id="cholong" href="#">Cholong Kim (MFA) <span class="arrow"></span></a>
-				<a id="yunha" href="#">Yun Ha Seo (MFA) <span class="arrow"></span></a>
-				<a id="jen" href="#">Jennifer Oksnevad (MA) <span class="arrow"></span></a>
-				<a id="sree" href="#">Sreekishen Nair (Ph.D) <span class="arrow"></span></a>
+				<p id="cholong">Cholong Kim (MFA)</p>
+				<a id="yunha" href="https://yunhaseo.com/" target="_blank">Yun Ha Seo (MFA) <span class="arrow"></span></a>
+				<p id="jen">Jennifer Oksnevad (MA)</p>
+				<p id="sree">Sreekishen Nair (Ph.D)</p>
 			</div>
 
 			<img id="who-photo" src="" alt="">
@@ -416,32 +416,32 @@
 
 			document.getElementById("sabrill").addEventListener("mouseenter", function( event ) {
 				bio_array.pop();
-				bio_array.push("sabrill's bio");
+				bio_array.push("PLACE, as both a noun and a verb, explores the ambiguity of placeness, location, and identity of the ideas presented through the works of these graphic designers in society and culture.");
 				photo.src = "img/sabrill.jpg";
 			});
 
 			document.getElementById("cholong").addEventListener("mouseenter", function( event ) {
 				bio_array.pop();
-				bio_array.push("cholong's bio");
-				photo.src = "img/cholong.jpg";
+				bio_array.push("As a content editor, Cholong made magazines and books for five years. Now, as a designer, she is dealing with feminism issues to encourage awareness of women’s rights. ");
+				photo.src = "img/cholong.png";
 			});
 
 			document.getElementById("yunha").addEventListener("mouseenter", function( event ) {
 				bio_array.pop();
-				bio_array.push("Yunha is a designer and developer interested in the materiality and culture of the internet and the intersection between art and technology.");
-				photo.src = "img/yunha.jpg";
+				bio_array.push("Yunha is a designer and developer interested in the materiality and culture of the internet and the intersection between art and technology, physical and digital.");
+				photo.src = "img/yunha.png";
 			});
 
 			document.getElementById("jen").addEventListener("mouseenter", function( event ) {
 				bio_array.pop();
-				bio_array.push("jen's bio");
-				photo.src = "img/jen.jpg";
+				bio_array.push("PLACE, as both a noun and a verb, explores the ambiguity of placeness, location, and identity of the ideas presented through the works of these graphic designers in society and culture.");
+				photo.src = "";
 			});
 
 			document.getElementById("sree").addEventListener("mouseenter", function( event ) {
 				bio_array.pop();
-				bio_array.push("sree's bio");
-				photo.src = "img/sree.jpg";
+				bio_array.push("PLACE, as both a noun and a verb, explores the ambiguity of placeness, location, and identity of the ideas presented through the works of these graphic designers in society and culture.");
+				photo.src = "";
 			});
 
 			document.getElementById("who-group").addEventListener("mouseleave", function( event ) {
@@ -451,7 +451,7 @@
 			});
 
 			document.addEventListener('mousemove', e => {
-				photo.style.left = e.x - 120 + "px";
+				photo.style.left = e.x - 170 + "px";
 				photo.style.top = e.y - 70 + "px";
 
 			});
